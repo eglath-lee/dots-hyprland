@@ -50,6 +50,43 @@ pre_process() {
     fi
 }
 
+# Override the generated palette with a committed official preset (e.g. the
+# upstream Catppuccin Mocha palette). Used by the "-exact" fixed types so the
+# shell colors, accent and terminal scheme match the preset exactly instead of
+# matugen's material-derived approximation (generate_colors_material.py
+# harmonizes the terminal colors, so those are patched here after generation).
+apply_exact_palette() {
+    [[ -z "$exact_palette_name" ]] && return
+    local pal_dir="$SCRIPT_DIR/palettes"
+    local palette_file="$pal_dir/$exact_palette_name.json"
+    local term_file="$pal_dir/$exact_palette_name-terminal.json"
+    local dst="$STATE_DIR/user/generated"
+    local tdir="$dst/terminal"
+    [[ -f "$palette_file" ]] || { echo "[exact] missing palette $palette_file" >&2; return; }
+    mkdir -p "$tdir"
+
+    # 1) shell palette -> colors.json (MaterialThemeLoader auto-reloads it)
+    cp "$palette_file" "$dst/colors.json"
+
+    # 2) accent -> official accent (matches the fixed seed; set explicitly)
+    printf '%s' "$(jq -r '.primary' "$palette_file")" > "$dst/color.txt"
+
+    # 3) terminal -> official ANSI + material roles the templates need, replacing
+    #    applycolor.sh's harmonized output.
+    [[ -f "$term_file" ]] || { echo "[exact] missing terminal palette $term_file" >&2; return; }
+    python3 "$pal_dir/apply_terminal.py" "$term_file" "$palette_file" "$SCRIPT_DIR/terminal" "$tdir"
+
+    # Reload kitty / push escape sequences to open terminals
+    if pgrep -f kitty >/dev/null 2>&1; then
+        kill -SIGUSR1 "$(pidof kitty)" 2>/dev/null
+    fi
+    for t in /dev/pts/*; do
+        if [[ "$t" =~ ^/dev/pts/[0-9]+$ ]]; then
+            cat "$tdir/sequences.txt" > "$t" & disown || true
+        fi
+    done
+}
+
 post_process() {
     local screen_width="$1"
     local screen_height="$2"
@@ -314,6 +351,10 @@ switch() {
     max_width_desired="$(hyprctl monitors -j | jq '([.[].width] | min)' | xargs)"
     max_height_desired="$(hyprctl monitors -j | jq '([.[].height] | min)' | xargs)"
     post_process "$max_width_desired" "$max_height_desired" "$imgpath"
+
+    # Official-palette fixed types: patch colors.json/color.txt/terminal after
+    # everything else has written them, so the preset wins over matugen.
+    [[ -n "$exact_palette_name" ]] && apply_exact_palette
 }
 
 main() {
@@ -323,6 +364,7 @@ main() {
     color_flag=""
     color=""
     noswitch_flag=""
+    exact_palette_name=""
 
     get_type_from_config() {
         jq -r '.appearance.palette.type' "$SHELL_CONFIG_FILE" 2>/dev/null || echo "auto"
@@ -395,7 +437,7 @@ main() {
     fi
 
     # Validate type_flag (allow 'auto' as well)
-    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot tokyo-night dracula catppuccin-mocha auto)
+    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot tokyo-night dracula catppuccin-mocha catppuccin-mocha-exact auto)
     valid_type=0
     for t in "${allowed_types[@]}"; do
         if [[ "$type_flag" == "$t" ]]; then
@@ -494,6 +536,18 @@ main() {
         color="#CBA6F7"                    # Catppuccin Mocha mauve (seed → Material scheme)
         mode_flag="dark"                   # Catppuccin Mocha is inherently dark
         type_flag="scheme-content"         # remap to a real Material scheme matugen understands
+    fi
+
+    # catppuccin-mocha-exact: same fixed seed as catppuccin-mocha (so the accent
+    # is identical) but afterwards require_exact_palette overrides colors.json,
+    # color.txt and the terminal scheme with the committed official Mocha palette
+    # (palettes/catppuccin-mocha*.json) instead of matugen's derived values.
+    if [[ "$type_flag" == "catppuccin-mocha-exact" ]]; then
+        color_flag="1"                     # make switch() take the --color branch
+        color="#CBA6F7"                    # same seed as catppuccin-mocha
+        mode_flag="dark"                   # Catppuccin Mocha is inherently dark
+        type_flag="scheme-content"         # remap to a real Material scheme matugen understands
+        exact_palette_name="catppuccin-mocha"
     fi
 
     switch "$imgpath" "$mode_flag" "$type_flag" "$color_flag" "$color"

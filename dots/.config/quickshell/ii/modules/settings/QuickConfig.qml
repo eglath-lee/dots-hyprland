@@ -224,6 +224,10 @@ ContentPage {
                 {
                     "value": "catppuccin-mocha",
                     "displayName": Translation.tr("Catppuccin Mocha")
+                },
+                {
+                    "value": "catppuccin-mocha-exact",
+                    "displayName": Translation.tr("Catppuccin Mocha (Official)")
                 }
             ]
         }
