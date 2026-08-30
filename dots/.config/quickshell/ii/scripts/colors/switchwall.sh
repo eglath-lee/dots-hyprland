@@ -395,7 +395,7 @@ main() {
     fi
 
     # Validate type_flag (allow 'auto' as well)
-    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot auto)
+    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot tokyo-night auto)
     valid_type=0
     for t in "${allowed_types[@]}"; do
         if [[ "$type_flag" == "$t" ]]; then
@@ -466,6 +466,17 @@ main() {
         elif [[ -f "$new_stripped_imgpath" ]]; then
             imgpath="$new_stripped_imgpath"
         fi
+    fi
+
+    # --- fixed-palette types (Route 2: seed color, no wallpaper input) ---
+    # tokyo-night: force a fixed Tokyo-blue seed regardless of wallpaper, so the
+    # Material-You palette is deterministic (never drifts). The wallpaper is a
+    # separate cosmetic layer (wallpaperPath in config), untouched here.
+    if [[ "$type_flag" == "tokyo-night" ]]; then
+        color_flag="1"                     # make switch() take the --color branch
+        color="#7AA2F7"                    # Tokyo Night blue (seed → Material scheme)
+        mode_flag="dark"                   # Tokyo Night is inherently dark
+        type_flag="scheme-content"         # remap to a real Material scheme matugen understands
     fi
 
     switch "$imgpath" "$mode_flag" "$type_flag" "$color_flag" "$color"
