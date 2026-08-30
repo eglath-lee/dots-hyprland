@@ -395,7 +395,7 @@ main() {
     fi
 
     # Validate type_flag (allow 'auto' as well)
-    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot tokyo-night dracula auto)
+    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot tokyo-night dracula catppuccin-mocha auto)
     valid_type=0
     for t in "${allowed_types[@]}"; do
         if [[ "$type_flag" == "$t" ]]; then
@@ -484,6 +484,15 @@ main() {
         color_flag="1"                     # make switch() take the --color branch
         color="#BD93F9"                    # Dracula purple (seed → Material scheme)
         mode_flag="dark"                   # Dracula is inherently dark
+        type_flag="scheme-content"         # remap to a real Material scheme matugen understands
+    fi
+
+    # catppuccin-mocha: fixed Catppuccin Mocha mauve seed (Mocha's signature
+    # accent #CBA6F7), dark by default. Wallpaper is a cosmetic layer only.
+    if [[ "$type_flag" == "catppuccin-mocha" ]]; then
+        color_flag="1"                     # make switch() take the --color branch
+        color="#CBA6F7"                    # Catppuccin Mocha mauve (seed → Material scheme)
+        mode_flag="dark"                   # Catppuccin Mocha is inherently dark
         type_flag="scheme-content"         # remap to a real Material scheme matugen understands
     fi
 

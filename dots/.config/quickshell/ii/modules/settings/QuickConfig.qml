@@ -220,6 +220,10 @@ ContentPage {
                 {
                     "value": "dracula",
                     "displayName": Translation.tr("Dracula")
+                },
+                {
+                    "value": "catppuccin-mocha",
+                    "displayName": Translation.tr("Catppuccin Mocha")
                 }
             ]
         }
