@@ -395,7 +395,7 @@ main() {
     fi
 
     # Validate type_flag (allow 'auto' as well)
-    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot tokyo-night auto)
+    allowed_types=(scheme-content scheme-expressive scheme-fidelity scheme-fruit-salad scheme-monochrome scheme-neutral scheme-rainbow scheme-tonal-spot tokyo-night dracula auto)
     valid_type=0
     for t in "${allowed_types[@]}"; do
         if [[ "$type_flag" == "$t" ]]; then
@@ -476,6 +476,14 @@ main() {
         color_flag="1"                     # make switch() take the --color branch
         color="#7AA2F7"                    # Tokyo Night blue (seed → Material scheme)
         mode_flag="dark"                   # Tokyo Night is inherently dark
+        type_flag="scheme-content"         # remap to a real Material scheme matugen understands
+    fi
+
+    # dracula: fixed Dracula-purple seed (Dracula signature #BD93F9), dark by default.
+    if [[ "$type_flag" == "dracula" ]]; then
+        color_flag="1"                     # make switch() take the --color branch
+        color="#BD93F9"                    # Dracula purple (seed → Material scheme)
+        mode_flag="dark"                   # Dracula is inherently dark
         type_flag="scheme-content"         # remap to a real Material scheme matugen understands
     fi
 

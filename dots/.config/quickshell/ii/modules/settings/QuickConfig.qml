@@ -216,6 +216,10 @@ ContentPage {
                 {
                     "value": "tokyo-night",
                     "displayName": Translation.tr("Tokyo Night")
+                },
+                {
+                    "value": "dracula",
+                    "displayName": Translation.tr("Dracula")
                 }
             ]
         }
