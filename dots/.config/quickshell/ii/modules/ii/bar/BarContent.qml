@@ -62,10 +62,7 @@ Item { // Bar content region
         onScrollDown: Brightness.decreaseBrightness()
         onScrollUp: Brightness.increaseBrightness()
         onMovedAway: GlobalStates.osdBrightnessOpen = false
-        onPressed: event => {
-            if (event.button === Qt.LeftButton)
-                GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
-        }
+        // [fork] No click action: clicking the bar's left side must not toggle the left sidebar (scroll keeps working)
 
         // Visual content
         ScrollHint {
