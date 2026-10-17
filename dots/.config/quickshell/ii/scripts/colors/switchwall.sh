@@ -221,6 +221,15 @@ switch() {
     matugen_args=(--source-color-index 0)
 
     if [[ "$color_flag" == "1" ]]; then
+        # Fixed-palette types (tokyo-night / dracula / catppuccin-*): the palette
+        # comes from a seed color, so `imgpath` is NOT used for color generation.
+        # Still record the chosen image: the wallpaper is a separate cosmetic
+        # layer, and without this the selector would visibly do nothing at all.
+        # Videos are skipped — fixed types never start mpvpaper for them.
+        if [[ -n "$imgpath" && -f "$imgpath" ]] && ! is_video "$imgpath"; then
+            set_wallpaper_path "$imgpath"
+            [[ -f "$RESTORE_SCRIPT" ]] && remove_restore
+        fi
         matugen_args+=(color hex "$color")
         generate_colors_material_args=(--color "$color")
     else
