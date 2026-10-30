@@ -95,7 +95,7 @@ hl.config({
             enabled = true,
             range = 20,
             offset = {0, 2},
-            render_power = 10,
+            render_power = 4, -- Hyprland 0.57 起硬校验区间 1-4（原 10 越界会报错）
             color = "rgba(00000020)"
 
         },
