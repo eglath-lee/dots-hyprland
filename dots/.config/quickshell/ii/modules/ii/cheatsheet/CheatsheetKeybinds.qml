@@ -11,8 +11,9 @@ import Quickshell
 Item {
     id: root
     property real padding: 4
-    implicitWidth: QsWindow?.window?.screen.width * 0.7 ?? 0
-    implicitHeight: QsWindow?.window?.screen.height * 0.7 ?? 0
+    // Local: 放大正文字号后 0.7 会裁掉最右列 → 高度给到 0.8，宽度按内容自适应（上限 0.9）
+    implicitWidth: Math.min(QsWindow?.window?.screen.width * 0.9 ?? 0, flow.implicitWidth + Appearance.rounding.small * 2)
+    implicitHeight: QsWindow?.window?.screen.height * 0.8 ?? 0
 
     StyledFlickable {
         id: flickable

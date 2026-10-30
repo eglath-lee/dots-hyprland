@@ -13,14 +13,11 @@ import Quickshell.Hyprland
 
 Scope { // Scope
     id: root
+    // Local (vibe-ricing): Elements 页已按需移除，只留 Keybinds
     property var tabButtonList: [
         {
             "icon": "keyboard",
             "name": Translation.tr("Keybinds")
-        },
-        {
-            "icon": "experiment",
-            "name": Translation.tr("Elements")
         },
     ]
 
@@ -136,6 +133,7 @@ Scope { // Scope
                     Toolbar {
                         Layout.alignment: Qt.AlignHCenter
                         enableShadow: false
+                        visible: root.tabButtonList.length > 1 // Local: 只剩一页时不显示标签栏
                         ToolbarTabBar {
                             id: tabBar
                             tabButtonList: root.tabButtonList
@@ -152,10 +150,7 @@ Scope { // Scope
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         spacing: 10
-                        currentIndex: Persistent.states.cheatsheet.tabIndex
-                        onCurrentIndexChanged: {
-                            Persistent.states.cheatsheet.tabIndex = currentIndex;
-                        }
+                        // Local: 只剩一页，不再持久化 tab 下标（也避免历史值越界成空白页）
 
                         implicitWidth: Math.max.apply(null, contentChildren.map(child => child.implicitWidth || 0))
                         implicitHeight: Math.max.apply(null, contentChildren.map(child => child.implicitHeight || 0))
@@ -170,8 +165,8 @@ Scope { // Scope
                             }
                         }
 
+                        // Local: CheatsheetPeriodicTable（元素周期表页）已移除
                         CheatsheetKeybinds {}
-                        CheatsheetPeriodicTable {}
                     }
                 }
             }
